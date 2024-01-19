@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LargeFloatingActionButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,21 +46,22 @@ var oyuncu2 = 0
 @Composable
 fun XOX() {
     val board = remember{ mutableStateOf(Array(3){ arrayOfNulls<String>(3) } )}
+    val isBoardFull = board.value.all { row -> row.all { it != null } }
     val oynayan = remember { mutableStateOf("X") }
     val kazanan = remember {
         mutableStateOf<String?>(null)
     }
-    val text1 = remember { mutableStateOf("Oyuncu X") }
-    val text2 = remember { mutableStateOf("Oyuncu O") }
+    val text1 = remember { mutableStateOf("Bergay") }
+    val text2 = remember { mutableStateOf("Mıstallı") }
     val resetBoard = Array(3){ arrayOfNulls<String>(3) }
     val resetOyuncu = "X"
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(color = MaterialTheme.colorScheme.surface)
+        .background(color = Color.White)
         .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
-            Text(text = "XOX Oyunu", fontSize = 45.sp, modifier = Modifier.padding(bottom=15.dp))
+            Text(text = "XOX", fontSize = 45.sp, modifier = Modifier.padding(bottom=15.dp))
         }
         Box(modifier = Modifier
             .padding(10.dp)
@@ -81,16 +81,33 @@ fun XOX() {
                                 }
                             }, modifier = Modifier
                                 .padding(4.dp)) {
-                                Text(text = board.value[row][col] ?: "", color = Color.Black, fontSize = 24.sp)
+                                Text(text = board.value[row][col] ?: "", color = Color.Black, fontSize = 28.sp)
                             }
                         }
                     }
                 }
             }
         }
-        if(kazanan.value == null){
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround){
-                Text(text = "Sıradaki Oyuncu: ${oynayan.value}", Modifier.padding(top = 10.dp))
+        if(kazanan.value == null && !isBoardFull){
+            Row (modifier = Modifier
+                .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround){
+                    Text(text = "Sıradaki Oyuncu: ${oynayan.value}", Modifier.padding(all = 10.dp))
+            }
+        }
+        if (isBoardFull && kazanan.value == null) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                Button(
+                    modifier = Modifier.padding(10.dp),
+                    onClick = {
+                        board.value = resetBoard
+                        oynayan.value = resetOyuncu
+                        kazanan.value = null
+                    },
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                ) {
+                    Text(text = "Yeniden Başla", color = Color.Black)
+                }
             }
         }
         if(kazanan.value != null){
@@ -98,7 +115,8 @@ fun XOX() {
                 Text(text = "Kazanan: ${kazanan.value}", Modifier.padding(10.dp))
             }
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround){
-                Button(onClick = {
+                Button(modifier = Modifier.padding(5.dp),
+                    onClick = {
                     board.value = resetBoard
                     oynayan.value=resetOyuncu
                     kazanan.value=null},
@@ -114,40 +132,47 @@ fun XOX() {
                 oyuncu2++
             }
         }
-        Row (horizontalArrangement = Arrangement.SpaceAround){
-            Column (modifier = Modifier
-                .padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally){
-                Text(text = "${text1.value}: $oyuncu1", modifier = Modifier.padding(bottom = 10.dp))
+        Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 10.dp)){
+            Column (horizontalAlignment = Alignment.CenterHorizontally){
+                Text(text = "${text1.value} (X): $oyuncu1", modifier = Modifier.padding(bottom = 10.dp))
                 OutlinedTextField(
                     modifier = Modifier.width(150.dp),
                     value = text1.value,
-                    onValueChange = { text1.value = it },
+                    onValueChange = {
+                        if (it.length<=8){
+                            text1.value = it
+                        }
+                                    },
                     singleLine=true,
-                    label = {Text(text = "İlk Oyuncu Adı")}
+                    label = {Text(text = "İlk Oyuncu")}
                     )
             }
-            Column (modifier = Modifier
-                .padding(top=20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(start = 10.dp, end = 10.dp)) {
                 Box (modifier = Modifier
                     .height(110.dp)
                     .width(1.dp)
                     .background(Color.Gray)
                     )
             }
-            Column (modifier = Modifier
-                .padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally){
-                Text(text = "${text2.value}: $oyuncu2", modifier = Modifier.padding(bottom = 10.dp))
+            Column (horizontalAlignment = Alignment.CenterHorizontally){
+                Text(text = "${text2.value} (O): $oyuncu2", modifier = Modifier.padding(bottom = 10.dp))
                 OutlinedTextField(
                     modifier = Modifier.width(150.dp),
                     value = text2.value,
-                    onValueChange = { text2.value = it },
+                    onValueChange = {
+                        if (it.length<=8){
+                            text2.value = it
+                        }
+                    },
                     singleLine=true,
-                    label = {Text(text = "İkinci Oyuncu Adı")}
+                    label = {Text(text = "İkinci Oyuncu")}
                 )
             }
         }
-
-    }
+        Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 20.dp)) {
+            Text( "*Powered by Samet Özbalkan :)", fontSize = 12.sp)
+        }
+        }
 }
 
 fun kontrol(board:Array<Array<String?>>): String?{
