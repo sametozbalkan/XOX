@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -51,17 +52,22 @@ fun XOX() {
     val kazanan = remember {
         mutableStateOf<String?>(null)
     }
-    val text1 = remember { mutableStateOf("Bergay") }
-    val text2 = remember { mutableStateOf("Mıstallı") }
+    val text1 = remember { mutableStateOf("Berkay") }
+    val text2 = remember { mutableStateOf("Kaan") }
     val resetBoard = Array(3){ arrayOfNulls<String>(3) }
     val resetOyuncu = "X"
-
+    val checked = remember { mutableStateOf(false) }
+    val durum = remember { mutableStateOf(true) }
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.White)
         .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
             Text(text = "XOX", fontSize = 45.sp, modifier = Modifier.padding(bottom=15.dp))
+        }
+        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically){
+            Text(text = "Yabay Zeka:", fontSize = 14.sp)
+            Checkbox(checked = checked.value, onCheckedChange = { isChecked -> checked.value = isChecked }, enabled = durum.value)
         }
         Box(modifier = Modifier
             .padding(10.dp)
@@ -73,11 +79,17 @@ fun XOX() {
                             LargeFloatingActionButton(
                                 containerColor = Color.LightGray,
                                 shape = RectangleShape,
-                                onClick = {
-                                if (board.value[row][col] == null && kazanan.value == null) {
-                                board.value[row][col]=oynayan.value
-                                    oynayan.value=if(oynayan.value=="X") "O" else "X"
+                                onClick = {if (board.value[row][col] == null && kazanan.value == null) {
+                                    board.value[row][col] = oynayan.value
+                                    oynayan.value = if (oynayan.value == "X") "O" else "X"
                                     kazanan.value = kontrol(board.value)
+                                    durum.value = false
+                                    if (checked.value && kazanan.value == null && !isBoardFull) {
+                                        durum.value = false
+                                        randomhareket(board.value, oynayan.value)
+                                        kazanan.value = kontrol(board.value)
+                                        oynayan.value = if (oynayan.value == "X") "O" else "X"
+                                    }
                                 }
                             }, modifier = Modifier
                                 .padding(4.dp)) {
@@ -102,6 +114,7 @@ fun XOX() {
                         board.value = resetBoard
                         oynayan.value = resetOyuncu
                         kazanan.value = null
+                        durum.value = true
                     },
                     shape = RectangleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
@@ -119,7 +132,9 @@ fun XOX() {
                     onClick = {
                     board.value = resetBoard
                     oynayan.value=resetOyuncu
-                    kazanan.value=null},
+                    kazanan.value=null
+                        durum.value = true
+                    },
                     shape = RectangleShape, colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
                 ) {
                     Text(text = "Yeniden Başla", color = Color.Black)
@@ -133,7 +148,7 @@ fun XOX() {
             }
         }
         Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 10.dp)){
-            Column (horizontalAlignment = Alignment.CenterHorizontally){
+            Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)){
                 Text(text = "${text1.value} (X): $oyuncu1", modifier = Modifier.padding(bottom = 10.dp))
                 OutlinedTextField(
                     modifier = Modifier.width(150.dp),
@@ -144,7 +159,13 @@ fun XOX() {
                         }
                                     },
                     singleLine=true,
-                    label = {Text(text = "İlk Oyuncu")}
+                    label = { if (!checked.value){
+                        Text(text = "İlk Oyuncu")
+                    }else {
+                        Text(text = "Oyuncu Adı")
+                    }
+
+                    }
                     )
             }
             Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(start = 10.dp, end = 10.dp)) {
@@ -154,19 +175,23 @@ fun XOX() {
                     .background(Color.Gray)
                     )
             }
-            Column (horizontalAlignment = Alignment.CenterHorizontally){
-                Text(text = "${text2.value} (O): $oyuncu2", modifier = Modifier.padding(bottom = 10.dp))
-                OutlinedTextField(
-                    modifier = Modifier.width(150.dp),
-                    value = text2.value,
-                    onValueChange = {
-                        if (it.length<=8){
-                            text2.value = it
-                        }
-                    },
-                    singleLine=true,
-                    label = {Text(text = "İkinci Oyuncu")}
-                )
+            Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)){
+                if (!checked.value){
+                    Text(text = "${text2.value} (O): $oyuncu2", modifier = Modifier.padding(bottom = 10.dp))
+                    OutlinedTextField(
+                        modifier = Modifier.width(150.dp),
+                        value = text2.value,
+                        onValueChange = {
+                            if (it.length<=8){
+                                text2.value = it
+                            }
+                        },
+                        singleLine=true,
+                        label = {Text(text = "İkinci Oyuncu")}
+                    )
+                } else {
+                    Text(text = "PC (O): $oyuncu2", modifier = Modifier.padding(bottom = 10.dp))
+                }
             }
         }
         Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 20.dp)) {
@@ -193,4 +218,20 @@ fun kontrol(board:Array<Array<String?>>): String?{
         return board [0][2]
     }
     return null
+}
+
+fun randomhareket(board: Array<Array<String?>>, currentPlayer: String) {
+    val boshucre = mutableListOf<Pair<Int, Int>>()
+    for (row in board.indices) {
+        for (col in board[row].indices) {
+            if (board[row][col] == null) {
+                boshucre.add(row to col)
+            }
+        }
+    }
+    if (boshucre.isNotEmpty()) {
+        val randomIndex = (0 until boshucre.size).random()
+        val (randomRow, randomCol) = boshucre[randomIndex]
+        board[randomRow][randomCol] = currentPlayer
+    }
 }
