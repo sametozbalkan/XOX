@@ -3,7 +3,6 @@ package com.example.xox
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,14 +32,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.xox.ui.theme.XOXTheme
-import androidx.compose.ui.graphics.drawscope.DrawScope
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -218,23 +214,13 @@ fun XOX() {
         }
         Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 20.dp)) {
             Button(onClick = {
-                oyuncu1=0;
-                oyuncu2=0;
+                oyuncu1=0
+                oyuncu2=0
             }) {
                 Text("Skorları Sıfırla")
             }
         }
     }
-}
-
-fun DrawScope.drawWinnerLine(startX: Float, startY: Float, endX: Float, endY: Float) {
-    drawLine(
-        color = Color.Black,
-        start = Offset(startX, startY),
-        end = Offset(endX, endY),
-        strokeWidth = 4.dp.toPx(),
-        cap = StrokeCap.Round
-    )
 }
 
 fun kontrol(board:Array<Array<String?>>): String?{
