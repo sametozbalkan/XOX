@@ -3,6 +3,7 @@ package com.example.xox
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,23 +13,34 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.xox.ui.theme.XOXTheme
+import androidx.compose.ui.graphics.drawscope.DrawScope
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,11 +53,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-var oyuncu1 = 0
-var oyuncu2 = 0
-
 @Composable
 fun XOX() {
+    var oyuncu1 by remember { mutableIntStateOf(0) }
+    var oyuncu2 by remember { mutableIntStateOf(0) }
     val board = remember{ mutableStateOf(Array(3){ arrayOfNulls<String>(3) } )}
     val isBoardFull = board.value.all { row -> row.all { it != null } }
     val oynayan = remember { mutableStateOf("X") }
@@ -66,8 +77,18 @@ fun XOX() {
             Text(text = "XOX", fontSize = 45.sp, modifier = Modifier.padding(bottom=15.dp))
         }
         Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically){
-            Text(text = "Yabay Zeka:", fontSize = 14.sp)
-            Checkbox(checked = checked.value, onCheckedChange = { isChecked -> checked.value = isChecked }, enabled = durum.value)
+            Text(text = "Ai: ", fontSize = 14.sp)
+            Switch(checked = checked.value, onCheckedChange = { isChecked -> checked.value = isChecked }, enabled = durum.value, thumbContent = if (durum.value) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                    )
+                }
+            } else {
+                null
+            })
         }
         Box(modifier = Modifier
             .padding(10.dp)
@@ -79,7 +100,8 @@ fun XOX() {
                             LargeFloatingActionButton(
                                 containerColor = Color.LightGray,
                                 shape = RectangleShape,
-                                onClick = {if (board.value[row][col] == null && kazanan.value == null) {
+                                onClick = {
+                                    if (board.value[row][col] == null && kazanan.value == null) {
                                     board.value[row][col] = oynayan.value
                                     oynayan.value = if (oynayan.value == "X") "O" else "X"
                                     kazanan.value = kontrol(board.value)
@@ -130,6 +152,12 @@ fun XOX() {
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround){
                 Button(modifier = Modifier.padding(5.dp),
                     onClick = {
+                        if (kazanan.value=="X"){
+                            oyuncu1++
+                        }else
+                        {
+                            oyuncu2++
+                        }
                         board.value = resetBoard
                         oynayan.value=resetOyuncu
                         kazanan.value=null
@@ -139,12 +167,6 @@ fun XOX() {
                 ) {
                     Text(text = "Yeniden Başla", color = Color.Black)
                 }
-            }
-            if (kazanan.value=="X"){
-                oyuncu1++
-            }
-            if (kazanan.value=="O"){
-                oyuncu2++
             }
         }
         Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 10.dp)){
@@ -190,19 +212,35 @@ fun XOX() {
                         label = {Text(text = "İkinci Oyuncu")}
                     )
                 } else {
-                    Text(text = "PC (O): $oyuncu2", modifier = Modifier.padding(bottom = 10.dp))
+                    Text(text = "Bilgisayar (O): $oyuncu2", modifier = Modifier.padding(bottom = 10.dp))
                 }
             }
         }
         Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 20.dp)) {
-            Text( "*Powered by Samet Özbalkan :)", fontSize = 12.sp)
+            Button(onClick = {
+                oyuncu1=0;
+                oyuncu2=0;
+            }) {
+                Text("Skorları Sıfırla")
+            }
         }
     }
+}
+
+fun DrawScope.drawWinnerLine(startX: Float, startY: Float, endX: Float, endY: Float) {
+    drawLine(
+        color = Color.Black,
+        start = Offset(startX, startY),
+        end = Offset(endX, endY),
+        strokeWidth = 4.dp.toPx(),
+        cap = StrokeCap.Round
+    )
 }
 
 fun kontrol(board:Array<Array<String?>>): String?{
     for (row in 0..2){
         if(board[row][0] !=null && board[row][0]==board[row][1] && board[row][1]==board[row][2]){
+
             return board [row][0]
         }
     }
