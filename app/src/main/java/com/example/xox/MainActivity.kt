@@ -71,7 +71,7 @@ fun XOX() {
         }
         Box(modifier = Modifier
             .padding(10.dp)
-           ) {
+        ) {
             Column {
                 for (row in 0..2){
                     Row {
@@ -91,8 +91,8 @@ fun XOX() {
                                         oynayan.value = if (oynayan.value == "X") "O" else "X"
                                     }
                                 }
-                            }, modifier = Modifier
-                                .padding(4.dp)) {
+                                }, modifier = Modifier
+                                    .padding(4.dp)) {
                                 Text(text = board.value[row][col] ?: "", color = Color.Black, fontSize = 28.sp)
                             }
                         }
@@ -103,7 +103,7 @@ fun XOX() {
         if(kazanan.value == null && !isBoardFull){
             Row (modifier = Modifier
                 .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround){
-                    Text(text = "Sıradaki Oyuncu: ${oynayan.value}", Modifier.padding(all = 10.dp))
+                Text(text = "Sıradaki Oyuncu: ${oynayan.value}", Modifier.padding(all = 10.dp))
             }
         }
         if (isBoardFull && kazanan.value == null) {
@@ -130,9 +130,9 @@ fun XOX() {
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround){
                 Button(modifier = Modifier.padding(5.dp),
                     onClick = {
-                    board.value = resetBoard
-                    oynayan.value=resetOyuncu
-                    kazanan.value=null
+                        board.value = resetBoard
+                        oynayan.value=resetOyuncu
+                        kazanan.value=null
                         durum.value = true
                     },
                     shape = RectangleShape, colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
@@ -157,7 +157,7 @@ fun XOX() {
                         if (it.length<=8){
                             text1.value = it
                         }
-                                    },
+                    },
                     singleLine=true,
                     label = { if (!checked.value){
                         Text(text = "İlk Oyuncu")
@@ -166,14 +166,14 @@ fun XOX() {
                     }
 
                     }
-                    )
+                )
             }
             Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(start = 10.dp, end = 10.dp)) {
                 Box (modifier = Modifier
                     .height(110.dp)
                     .width(1.dp)
                     .background(Color.Gray)
-                    )
+                )
             }
             Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)){
                 if (!checked.value){
@@ -197,7 +197,7 @@ fun XOX() {
         Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 20.dp)) {
             Text( "*Powered by Samet Özbalkan :)", fontSize = 12.sp)
         }
-        }
+    }
 }
 
 fun kontrol(board:Array<Array<String?>>): String?{
